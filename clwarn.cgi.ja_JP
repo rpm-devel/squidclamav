@@ -1,0 +1,82 @@
+#!/usr/bin/perl
+use strict;
+
+use CGI;
+
+my $VERSION = '6.10';
+
+my $cgi = new CGI;
+
+my $url = CGI::escapeHTML($cgi->param('url')) || '';
+my $virus = CGI::escapeHTML($cgi->param('virus')) || CGI::escapeHTML($cgi->param('malware')) || '';
+my $source = CGI::escapeHTML($cgi->param('source')) || '';
+$source =~ s/\/-//;
+my $user = CGI::escapeHTML($cgi->param('user')) || '';
+
+my $requested = sprintf("要求されたURL %s はウィルスを含んでいます", $url);
+my $TITLE_VIRUS = "SquidClamAv $VERSION: ウィルスを検出しました！";
+my $subtitle = 'ウィルス名';
+my $errorreturn = 'このファイルをダウンロードすることはできません。';
+#my $urlerror = 'contains a virus';
+if ($virus =~ /Safebrowsing/) {
+	$TITLE_VIRUS = "SquidClamAv $VERSION: 安全ではないブラウジングを検出しました";
+	$subtitle = 'マルウェア / フィッシングタイプ';
+	#$urlerror = 'is listed as suspicious';
+	$requested = sprintf("要求されたURL %s は疑わしいものとして記載されています", $url);
+	$errorreturn = 'このページを表示することはできません';
+}
+
+# Remove clamd infos
+$virus =~ s/stream: //;
+$virus =~ s/ FOUND//;
+
+
+print $cgi->header();
+
+print $cgi->start_html(-title => $TITLE_VIRUS, -bgcolor => "#353535");
+print qq{
+	<style type="text/css">
+	.visu {
+	border:1px solid #C0C0C0;
+	color:#FFFFFF;
+	  position: relative;
+	  min-width: 13em;
+	  max-width: 52em;
+	  margin: 4em auto;
+	  border: 1px solid ThreeDShadow;
+	  border-radius: 10px;
+	  padding: 3em;
+	  -moz-padding-start: 30px;
+	background-color: #8b0000;
+}
+.visu h2, .visu h3, .visu h4 {
+	font-size:130%;
+	font-family:"times new roman", times, serif;
+	font-style:normal;
+	font-weight:bolder;
+}
+</style>	
+	<div class="visu">
+	<h2>$TITLE_VIRUS</h2>
+	<hr>
+	<p>
+};
+print qq{
+	$requested<br>
+	$subtitle: $virus
+};
+
+print qq{
+	<p>
+	$errorreturn
+	<p>
+	Origin: $source / $user
+	<p>
+	<hr>
+	<font color="blue"> Powered by <a href="http://squidclamav.darold.net/">SquidClamAv $VERSION</a>.</font>
+	</div>
+};
+
+print $cgi->end_html();
+
+exit 0;
