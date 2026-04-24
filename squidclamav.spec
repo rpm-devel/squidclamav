@@ -1,20 +1,13 @@
-%if 0%{?el7}
-%define dist .el7
-%endif
-
 Name:           squidclamav
-Version:        6.16
+Version:        7.4
 Release:        1%{?dist}
 Summary:        HTTP Antivirus for Squid based on ClamAv and the ICAP protocol
 
-Group:          System Environment/Daemons
 License:        GPL
 URL:            http://sourceforge.net/projects/squidclamav/
-Source0:        http://sourceforge.net/projects/squidclamav/files/%{name}/%{version}/%{name}-%{version}.tar.gz
+Source0:        https://github.com/darold/squidclamav/archive/v%{version}/%{name}-%{version}.tar.gz
 Source1:        %{name}-httpd.conf
 Source2:        clwarn.cgi.ja_JP
-
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  c-icap-devel c-icap
 Requires:       squid c-icap
@@ -38,27 +31,20 @@ handle several thousands of connections at once.
 	--enable-shared \
 	--with-c-icap
 
-make %{?_smp_mflags}
+%make_build
 
 %install
-rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/c-icap
-make install DESTDIR=$RPM_BUILD_ROOT
-find $RPM_BUILD_ROOT -name '*.la' | xargs rm
+mkdir -p %{buildroot}%{_sysconfdir}/c-icap
+%make_install
+find %{buildroot} -name '*.la' -delete
 
-install -D -m644 %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/httpd/conf.d/%{name}.conf
-install -D -m755 %{SOURCE2} $RPM_BUILD_ROOT%{_libexecdir}/%{name}/clwarn.cgi.ja_JP
+install -D -m644 %{SOURCE1} %{buildroot}%{_sysconfdir}/httpd/conf.d/%{name}.conf
+install -D -m755 %{SOURCE2} %{buildroot}%{_libexecdir}/%{name}/clwarn.cgi.ja_JP
 
-rm -rf $RPM_BUILD_ROOT%{_datadir}/%{name}
-
-%clean
-rm -rf $RPM_BUILD_ROOT
-
+rm -rf %{buildroot}%{_datadir}/%{name}
 
 %files
-%defattr(-,root,root,-)
 %doc AUTHORS ChangeLog INSTALL NEWS README
-%{!?_licensedir:%global license %%doc}
 %license COPYING
 %attr(0644,root,root) %config(noreplace) %{_sysconfdir}/c-icap/%{name}.conf
 %attr(0644,root,root) %{_sysconfdir}/c-icap/%{name}.conf.default
@@ -70,6 +56,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Fri Apr 24 2026 CasjaysDev <rpm-devel@casjaysdev.pro> - 7.4-1
+- Update to 7.4
+- Switch Source0 to GitHub archive URL
+
+* Fri Apr 24 2026 CasjaysDev <rpm-devel@casjaysdev.pro> - 6.16-1
+- Modernize spec for AlmaLinux 10
+
 * Wed Nov 09 2016 momo-i <webmaster@momo-i.org> - 6.16-1
 - Update to 6.16
 
