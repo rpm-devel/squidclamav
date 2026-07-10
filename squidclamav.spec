@@ -1,19 +1,17 @@
 Name:           squidclamav
-Version:        7.4
+Version:        7.5
 Release:        1%{?dist}
 Summary:        HTTP Antivirus for Squid based on ClamAv and the ICAP protocol
 
-License:        GPL
-URL:            http://sourceforge.net/projects/squidclamav/
+License:        GPL-2.0-or-later
+URL:            https://github.com/darold/squidclamav
+ExclusiveArch:  x86_64 aarch64
 Source0:        https://github.com/darold/squidclamav/archive/v%{version}/%{name}-%{version}.tar.gz
 Source1:        %{name}-httpd.conf
 Source2:        clwarn.cgi.ja_JP
 
 BuildRequires:  c-icap-devel c-icap
 Requires:       squid c-icap
-
-Packager:       momo-i <webmaster@momo-i.org>
-Vendor:         momo-i, http://www.momo-i.org/
 
 %description
 SquidClamav v6 is an antivirus for the Squid proxy based on the ICAP
@@ -24,7 +22,7 @@ available for free, it is written in C as a c-icap service and can
 handle several thousands of connections at once.
 
 %prep
-%setup -q
+%autosetup -p1
 
 %build
 %configure \
@@ -56,6 +54,15 @@ rm -rf %{buildroot}%{_datadir}/%{name}
 %{_mandir}/man1/%{name}.1.gz
 
 %changelog
+* Sat Jul 05 2026 CasjaysDev <rpm-devel@casjaysdev.pro> - 7.5-1
+- Update to 7.5
+- URL: sourceforge.net (stale) -> https://github.com/darold/squidclamav
+- Verified Source0 downloadable; Source1 (squidclamav-httpd.conf) present
+
+* Thu Jul 03 2026 CasjaysDev <rpm-devel@casjaysdev.pro> - 7.4-1
+- SPDX: GPL -> GPL-2.0-or-later; add ExclusiveArch: x86_64 aarch64
+- %%autosetup -p1; remove deprecated Packager/Vendor tags
+
 * Fri Apr 24 2026 CasjaysDev <rpm-devel@casjaysdev.pro> - 7.4-1
 - Update to 7.4
 - Switch Source0 to GitHub archive URL
